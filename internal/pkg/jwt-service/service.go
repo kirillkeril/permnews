@@ -1,27 +1,31 @@
-package jwt_service
+package jwtService
 
 import (
-	"authorization_service/internal/app/models/entity"
+	"authorization_service/internal/models/entity"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
-type JwtService struct {
-	secretKey  string
-	accessTTL  time.Duration
-	refreshTTL time.Duration
-}
+var secretKey string = "<KEY>"
+var accessTTL time.Duration = time.Hour
+var refreshTTL time.Duration = time.Hour * 24
 
 type JwtPair struct {
 	Access  string
 	Refresh string
 }
 
-func (s JwtService) CreateTokenPair(user entity.User) (*JwtPair, error) {
-	key := []byte(s.secretKey)
+func ConfigureService(secret string, accessTtl time.Duration, refreshTtl time.Duration) {
+	secretKey = secret
+	accessTTL = accessTtl
+	refreshTTL = refreshTtl
+}
+
+func CreateTokenPair(user entity.User) (*JwtPair, error) {
+	key := []byte(secretKey)
 
 	accessClaims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.accessTTL)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(accessTTL)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		NotBefore: jwt.NewNumericDate(time.Now()),
 		Issuer:    "test",
@@ -34,7 +38,7 @@ func (s JwtService) CreateTokenPair(user entity.User) (*JwtPair, error) {
 
 	refreshClaims := jwt.RegisteredClaims{
 		ID:        user.Id,
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.refreshTTL)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(refreshTTL)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		NotBefore: jwt.NewNumericDate(time.Now()),
 		Issuer:    "test",
@@ -48,10 +52,10 @@ func (s JwtService) CreateTokenPair(user entity.User) (*JwtPair, error) {
 	return &JwtPair{Access: accessToken, Refresh: refreshToken}, nil
 }
 
-func (s JwtService) VerifyToken(token string) (*jwt.RegisteredClaims, bool) {
+func VerifyToken(token string) (*jwt.RegisteredClaims, bool) {
 	var claims jwt.RegisteredClaims
 	_, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(s.secretKey), nil
+		return []byte(secretKey), nil
 	})
 	if err != nil {
 		return nil, false

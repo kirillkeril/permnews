@@ -1,7 +1,7 @@
 package models
 
 import (
-	"authorization_service/internal/app/models/entity"
+	"authorization_service/internal/models/entity"
 	"github.com/google/uuid"
 	"time"
 )

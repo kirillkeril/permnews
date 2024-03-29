@@ -8,10 +8,10 @@ type User struct {
 	Roles []Role
 }
 
-func NewUser(email string, roles []Role) *User {
+func NewUser(email string) *User {
 	return &User{
 		Id:    uuid.New().String(),
 		Email: email,
-		Roles: roles,
+		Roles: nil,
 	}
 }

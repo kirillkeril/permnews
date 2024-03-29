@@ -1,8 +1,8 @@
 package middleware
 
 import (
+	"authorization_service/internal/pkg/jwt-service"
 	"github.com/gin-gonic/gin"
-	"monopoly/internal/pkg/jwtService"
 	"net/http"
 	"strings"
 )

@@ -1,8 +1,7 @@
 package repository
 
 import (
-	"authorization_service/internal/app/models/entity"
-	"authorization_service/internal/app/storage/models"
+	"authorization_service/internal/storage/models"
 	"database/sql"
 	_ "github.com/lib/pq"
 )
@@ -19,7 +18,7 @@ func NewUserRepository(storage Storage) UserRepository {
 	return UserRepository{storage: storage}
 }
 
-func (u UserRepository) GetById(id string) (*entity.User, error) {
+func (u UserRepository) GetById(id string) (*models.User, error) {
 	db := u.storage.GetDb()
 	var model *models.User
 	row := db.QueryRow(`SELECT * FROM users WHERE id=$1`, id)
@@ -27,7 +26,18 @@ func (u UserRepository) GetById(id string) (*entity.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return model.ToEntity(), nil
+	return model, nil
+}
+
+func (u UserRepository) GetByEmail(email string) (*models.User, error) {
+	db := u.storage.GetDb()
+	var model *models.User
+	row := db.QueryRow(`SELECT * FROM users WHERE email=$1`, email)
+	err := row.Scan(model)
+	if err != nil {
+		return nil, err
+	}
+	return model, nil
 }
 
 func (u UserRepository) Create(user models.User) error {
