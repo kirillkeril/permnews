@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  postgrs:
+  postgres:
     image: postgres
     environment:
       - POSTGRES_USER=postgres
@@ -9,3 +9,74 @@ services:
       - POSTGRES_DB=db
     ports:
       - "8082:5432"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "9001:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9000:29092"
+    hostname: kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "9002:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    links:
+      - kafka
+      - zookeeper
+
+  producer_afisha:
+    build:
+      context: ../cmd/afisha_parser/
+      dockerfile: Dockerfile
+    environment:
+      - URLS=schedule_theatre;schedule_concert;schedule_exhibition;standup
+      - KAFKA_URL=kafka:29092
+      - TIMEOUT=28800
+      - PAGES=20
+      - KAFKA_TOPIC=afisha
+    links:
+      - kafka-ui
+      - kafka
+    depends_on:
+      - kafka
+      - zookeeper
+
+  producer_ya_afisha:
+    build:
+      context: ../cmd/ya_afisha_parser/
+      dockerfile: Dockerfile
+    environment:
+      - EVENT_TYPES=spectacle;all-events-cinema;all-events-concert
+      - KAFKA_URL=kafka:29092
+      - TIMEOUT=28800
+      - PAGES=20
+      - KAFKA_TOPIC=afisha
+    links:
+      - kafka-ui
+      - kafka
+    depends_on:
+      - kafka
+      - zookeeper

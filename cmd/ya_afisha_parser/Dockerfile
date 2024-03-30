@@ -4,7 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install beautifulsoup4
 RUN pip install kafka-python
 RUN pip install requests
 RUN pip install python-dotenv
