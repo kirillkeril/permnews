@@ -1,6 +1,20 @@
 version: '3.7'
 
 services:
+  backend:
+    build:
+      context: ../
+      dockerfile: /build/Dockerfile
+    depends_on:
+      - postgres
+      - kafka
+    ports:
+      - "8080:8080"
+    links:
+      - postgres
+      - kafka
+      - kafka-ui
+
   postgres:
     image: postgres
     environment:
@@ -25,6 +39,12 @@ services:
     ports:
       - "9000:29092"
     hostname: kafka
+    healthcheck:
+      test: nc -z localhost 29092 || exit -1
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 10
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -61,8 +81,8 @@ services:
       - kafka-ui
       - kafka
     depends_on:
-      - kafka
-      - zookeeper
+      kafka:
+        condition: service_healthy
 
   producer_ya_afisha:
     build:
@@ -78,5 +98,23 @@ services:
       - kafka-ui
       - kafka
     depends_on:
+      kafka:
+        condition: service_healthy
+
+  producer_perm300:
+    build:
+      context: ../cmd/perm300_parser/
+      dockerfile: Dockerfile
+    environment:
+      - EVENT_TYPES=spectacle;all-events-cinema;all-events-concert
+      - KAFKA_URL=kafka:29092
+      - CATEGORIES=0;1;2;4;5;7;8;10;11
+      - TIMEOUT=28800
+      - PAGES=20
+      - KAFKA_TOPIC=afisha
+    links:
+      - kafka-ui
       - kafka
-      - zookeeper
+    depends_on:
+      kafka:
+        condition: service_healthy

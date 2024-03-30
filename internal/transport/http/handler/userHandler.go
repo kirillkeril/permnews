@@ -1,14 +1,14 @@
 package handler
 
 import (
-	"authorization_service/internal/models/entity"
-	jwtService "authorization_service/internal/pkg/jwt-service"
-	"authorization_service/internal/services"
-	"authorization_service/internal/transport/http/models/input"
-	"authorization_service/internal/transport/http/models/output"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"permnews/internal/models/entity"
+	jwtService "permnews/internal/pkg/jwt-service"
+	"permnews/internal/services"
+	"permnews/internal/transport/http/models/input"
+	"permnews/internal/transport/http/models/output"
 )
 
 type UserService interface {

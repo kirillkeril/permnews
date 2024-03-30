@@ -39,3 +39,16 @@ func (s *PostgresStorage) Migrate() error {
 	}
 	return nil
 }
+
+func (s *PostgresStorage) Down() error {
+	m, err := migrate.New(
+		s.migrationPath,
+		s.sourceUrl)
+	if err != nil {
+		return err
+	}
+	if err := m.Down(); err != nil {
+		return err
+	}
+	return nil
+}

@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"authorization_service/internal/pkg/jwt-service"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"permnews/internal/pkg/jwt-service"
 	"strings"
 )
 

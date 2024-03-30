@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"authorization_service/internal/storage/models"
 	"database/sql"
 	_ "github.com/lib/pq"
+	"permnews/internal/storage/models"
 )
 
 type Storage interface {

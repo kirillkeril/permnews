@@ -1,8 +1,8 @@
 package jwtService
 
 import (
-	"authorization_service/internal/models/entity"
 	"github.com/golang-jwt/jwt/v5"
+	"permnews/internal/models/entity"
 	"time"
 )
 

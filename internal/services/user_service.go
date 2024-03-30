@@ -1,11 +1,11 @@
 package services
 
 import (
-	"authorization_service/internal/models/entity"
-	"authorization_service/internal/storage/models"
 	"errors"
 	"github.com/google/uuid"
 	"log"
+	"permnews/internal/models/entity"
+	"permnews/internal/storage/models"
 )
 
 type UserRepository interface {

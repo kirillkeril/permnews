@@ -1,8 +1,8 @@
 package models
 
 import (
-	"authorization_service/internal/models/entity"
 	"github.com/google/uuid"
+	"permnews/internal/models/entity"
 	"time"
 )
 

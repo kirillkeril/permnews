@@ -1,25 +1,31 @@
-package http
+package app
 
 import (
-	"authorization_service/internal/storage/repository"
-	"authorization_service/internal/transport/http/router"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"permnews/internal/storage/repository"
+	"permnews/internal/transport/http/router"
 )
 
-type App struct {
-	router *gin.Engine
-	srv    *http.Server
-	addr   string
-	port   string
+type Consumer interface {
+	StartListening()
 }
 
-func New(router *gin.Engine, addr, port string) *App {
+type App struct {
+	router   *gin.Engine
+	srv      *http.Server
+	addr     string
+	port     string
+	consumer Consumer
+}
+
+func New(router *gin.Engine, addr, port string, consumer Consumer) *App {
 	return &App{
-		router: router,
-		addr:   addr,
-		port:   port,
+		router:   router,
+		addr:     addr,
+		port:     port,
+		consumer: consumer,
 	}
 }
 
@@ -34,6 +40,7 @@ func (a *App) InitServer() {
 func (a *App) Run(storage repository.Storage) error {
 	a.router = router.InitRouter(a.router, storage)
 	a.InitServer()
+	a.consumer.StartListening()
 	if err := a.srv.ListenAndServe(); err != nil {
 		return err
 	}

@@ -66,7 +66,7 @@ async def process_afisha(type, pagesCount, producer, topic):
             title = i['event']['title']
             events.append({"title": title, "notice": notice, "link": link, "image": image, "source": "afisha.yandex.ru"})
         
-        producer.send(topic, data).add_callback(on_send_success).add_errback(on_send_error)
+        producer.send(topic, events).add_callback(on_send_success).add_errback(on_send_error)
         await asyncio.sleep(5)
 
 
