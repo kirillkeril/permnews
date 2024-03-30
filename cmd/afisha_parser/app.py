@@ -60,12 +60,16 @@ async def process_afisha(u, pagesCount, producer, topic):
             notice = i.find_all("div", {'data-test': 'ITEM-META ITEM-NOTICE'})[0].text
             link = "https://www.afisha.ru" + i.find_all('a', {'data-test': 'LINK ITEM-NAME ITEM-URL'})[0].get('href')
             source = "https://www.afisha.ru"
-            image = i.find_all("img", { 'data-test': "IMAGE ITEM-IMAGE" })[0].get('src')
-            data.append({"title": title, "notice": notice, "link": link, "source": source, "image": image})
+            image = None
+            try:
+                image = i.find_all("img", { 'data-test': "IMAGE ITEM-IMAGE" })[0].get('src')
+            except Exception:
+                print('no image')
+            data.append({"title": title, "notice": notice, "link": link, "source": source, "image": image, "category": get_category(u)})
 
         producer.send(topic, data).add_callback(on_send_success).add_errback(on_send_error)
         print("sent {} items in data".format(len(data)))
-        await asyncio.sleep(20)
+        await asyncio.sleep(10)
 
 def on_send_success(record_metadata):
     print(record_metadata.topic)
@@ -74,6 +78,16 @@ def on_send_success(record_metadata):
 
 def on_send_error(excp):
     print('error: {}'.format(excp))
+
+def get_category(u):
+    if u == "schedule_theatre":
+        return "theatre"
+    if u == "schedule_concert":
+        return "concert"
+    if u == "schedule_exhibition":
+        return "exhibition"
+    if u == "standup":
+        return "standup"
 
 if __name__ == "__main__":
     asyncio.run(main())

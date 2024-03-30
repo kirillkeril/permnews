@@ -6,6 +6,14 @@ from dotenv import load_dotenv
 import json
 import asyncio
 
+def get_category(c):
+    if c == "spectacle":
+        return "theatre"
+    if c == "all-events-cinema":
+        return "cinema"
+    if c == "all-events-concert":
+        return "concert"
+
 async def main():
     load_dotenv()
     types = os.getenv('EVENT_TYPES').split(';') # spectacle;all-events-cinema
@@ -57,14 +65,15 @@ async def process_afisha(type, pagesCount, producer, topic):
         events = []
         for i in data['data']:
             link = "afisha.yandex.ru{}".format(i['event']['url'])
-            notice = "с {} по {}, {}".format(i['scheduleInfo']['dateStarted'], i['scheduleInfo']['dateEnd'], i['scheduleInfo']['placePreview'])
             image = None
+            notice = None
             try:
+                notice = "с {} по {}, {}".format(i['scheduleInfo']['dateStarted'], i['scheduleInfo']['dateEnd'], i['scheduleInfo']['placePreview'])
                 image = i['event']['image']['sizes']['eventCover']['url']
             except TypeError:
                 print(i['event'])
             title = i['event']['title']
-            events.append({"title": title, "notice": notice, "link": link, "image": image, "source": "afisha.yandex.ru"})
+            events.append({"title": title, "notice": notice, "link": link, "image": image, "source": "https://afisha.yandex.ru", "category": get_category(type)})
         
         producer.send(topic, events).add_callback(on_send_success).add_errback(on_send_error)
         await asyncio.sleep(5)
@@ -80,4 +89,3 @@ def on_send_error(excp):
 
 if __name__ == "__main__":
     asyncio.run(main())
-
